@@ -35,31 +35,62 @@ else()
     set(UCD_STATIC_LIB ${UCD_TOOLS_DIR}/${UCD_CONFIG_SUBDIR}libucd.a)
 endif()
 
-ExternalProject_Add(espeak_ng_external
-    GIT_REPOSITORY https://github.com/espeak-ng/espeak-ng.git
-    GIT_TAG 212928b394a96e8fd2096616bfd54e17845c48f6  # 2025-Mar-22
-    PREFIX ${ESPEAKNG_BUILD_DIR}
-    CMAKE_ARGS
-        -DCMAKE_INSTALL_PREFIX=${ESPEAKNG_INSTALL_DIR}
-        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-        -DBUILD_SHARED_LIBS:BOOL=OFF
-        -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
-        -DUSE_ASYNC:BOOL=OFF
-        -DUSE_MBROLA:BOOL=OFF
-        -DUSE_LIBSONIC:BOOL=OFF
-        -DUSE_LIBPCAUDIO:BOOL=OFF
-        -DUSE_KLATT:BOOL=OFF
-        -DUSE_SPEECHPLAYER:BOOL=OFF
-        -DEXTRA_cmn:BOOL=ON
-        -DEXTRA_ru:BOOL=ON
-        # Need to explicitly add ucd include directory for CI
-        "-DCMAKE_C_FLAGS=-D_FILE_OFFSET_BITS=64 -I${ESPEAKNG_BUILD_DIR}/src/espeak_ng_external/src/ucd-tools/src/include"
-        "-DCMAKE_CXX_FLAGS=-D_FILE_OFFSET_BITS=64 -I${ESPEAKNG_BUILD_DIR}/src/espeak_ng_external/src/ucd-tools/src/include"
-    BUILD_BYPRODUCTS
-        ${ESPEAKNG_STATIC_LIB}
-        ${UCD_STATIC_LIB}
-    UPDATE_DISCONNECTED TRUE
-)
+if(QNX)
+    if(NOT ESPEAKNG_SOURCE_DIR)
+        set(ESPEAKNG_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/espeak-ng")
+    endif()
+
+    ExternalProject_Add(espeak_ng_external
+        SOURCE_DIR "${ESPEAKNG_SOURCE_DIR}"
+        DOWNLOAD_COMMAND ""
+        PREFIX ${ESPEAKNG_BUILD_DIR}
+        CMAKE_ARGS
+            -DCMAKE_INSTALL_PREFIX=${ESPEAKNG_INSTALL_DIR}
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DBUILD_SHARED_LIBS:BOOL=OFF
+            -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
+            -DUSE_ASYNC:BOOL=OFF
+            -DUSE_MBROLA:BOOL=OFF
+            -DUSE_LIBSONIC:BOOL=OFF
+            -DUSE_LIBPCAUDIO:BOOL=OFF
+            -DUSE_KLATT:BOOL=OFF
+            -DUSE_SPEECHPLAYER:BOOL=OFF
+            -DEXTRA_cmn:BOOL=ON
+            -DEXTRA_ru:BOOL=ON
+            "-DCMAKE_C_FLAGS=-D_FILE_OFFSET_BITS=64 -I${ESPEAKNG_SOURCE_DIR}/src/ucd-tools/src/include"
+            "-DCMAKE_CXX_FLAGS=-D_FILE_OFFSET_BITS=64 -I${ESPEAKNG_SOURCE_DIR}/src/ucd-tools/src/include"
+        BUILD_BYPRODUCTS
+            ${ESPEAKNG_STATIC_LIB}
+            ${UCD_STATIC_LIB}
+        UPDATE_DISCONNECTED TRUE
+    )
+else()
+    ExternalProject_Add(espeak_ng_external
+        GIT_REPOSITORY https://github.com/espeak-ng/espeak-ng.git
+        GIT_TAG 212928b394a96e8fd2096616bfd54e17845c48f6  # 2025-Mar-22
+        PREFIX ${ESPEAKNG_BUILD_DIR}
+        CMAKE_ARGS
+            -DCMAKE_INSTALL_PREFIX=${ESPEAKNG_INSTALL_DIR}
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DBUILD_SHARED_LIBS:BOOL=OFF
+            -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
+            -DUSE_ASYNC:BOOL=OFF
+            -DUSE_MBROLA:BOOL=OFF
+            -DUSE_LIBSONIC:BOOL=OFF
+            -DUSE_LIBPCAUDIO:BOOL=OFF
+            -DUSE_KLATT:BOOL=OFF
+            -DUSE_SPEECHPLAYER:BOOL=OFF
+            -DEXTRA_cmn:BOOL=ON
+            -DEXTRA_ru:BOOL=ON
+            # Need to explicitly add ucd include directory for CI
+            "-DCMAKE_C_FLAGS=-D_FILE_OFFSET_BITS=64 -I${ESPEAKNG_BUILD_DIR}/src/espeak_ng_external/src/ucd-tools/src/include"
+            "-DCMAKE_CXX_FLAGS=-D_FILE_OFFSET_BITS=64 -I${ESPEAKNG_BUILD_DIR}/src/espeak_ng_external/src/ucd-tools/src/include"
+        BUILD_BYPRODUCTS
+            ${ESPEAKNG_STATIC_LIB}
+            ${UCD_STATIC_LIB}
+        UPDATE_DISCONNECTED TRUE
+    )
+endif()
 
 include_directories(
     ${ESPEAKNG_INSTALL_DIR}/include

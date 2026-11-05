@@ -10,6 +10,14 @@
 #define UNI_ALGO_STATIC_DATA
 #define UNI_ALGO_DISABLE_SYSTEM_LOCALE
 
+#ifdef major
+#undef major
+#endif
+
+#ifdef minor
+#undef minor
+#endif
+
 // AMALGAMATION: uni_algo/impl/impl_cpp_lib_version.h
 
 // Describes C++ library version number in XYYYZZZ format such that:
